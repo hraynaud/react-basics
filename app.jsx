@@ -19,6 +19,8 @@ var Header = function(props){
     <div className="header">
       <Stats players={props.players}/>
       <h1>{props.title}</h1>
+
+      <Stopwatch />
     </div>
     );
 };
@@ -85,6 +87,80 @@ var Stats = function(props){
   );
 };
 
+
+
+var Stopwatch = React.createClass({
+
+  getInitialState: function(){
+    return {
+      isRunning: false,
+      elapsedTime: 0,
+      previousTime: 0,
+    };
+  },
+
+  onTick: function(){
+    if(this.state.isRunning){
+      var now = Date.now();
+      this.setState({
+        previousTime: now,
+        elapsedTime: this.state.elapsedTime + (now - this.state.previousTime),
+      });
+    }
+  },
+
+  componentDidMount: function(){
+    this.interval =  setInterval(this.onTick, 100);
+  },
+
+  componentWillUnmount: function(){
+   clearInterval(this.interval);
+  },
+
+  toggleStartStop: function(){
+    if(this.state.isRunning){
+      this.onStop();
+    }else{
+      this.onStart();
+    }
+  },
+
+  onStart: function(){
+    this.setState({
+      isRunning: true,
+      previousTime: Date.now(),
+    });
+  },
+
+  onStop: function(){
+    this.setState({
+      isRunning: false,
+    })
+  },
+
+  reset: function(){
+    this.setState({
+      elapsedTime: 0,
+      previouwTime: Date.now(),
+    })
+  },
+
+  seconds: function(){
+   return Math.floor(this.state.elapsedTime/1000)
+  },
+
+  render: function(){
+    return (
+      <div className="stopwatch">
+        <h2>Stopwatch</h2> 
+        <div className="stopwatch-time">{this.seconds()}</div>
+         <button onClick={this.toggleStartStop}>{this.state.isRunning ? "Stop" : "Start"}</button>
+        <button onClick={this.reset}>Reset</button>
+      </div>
+    );
+  }
+
+});
 
 Stats.propTypes = {
   players: React.PropTypes.array.isRequired,
